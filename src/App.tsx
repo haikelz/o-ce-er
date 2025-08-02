@@ -1,35 +1,34 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useState } from "react";
+import Markdown from "react-markdown";
+import { createWorker } from "tesseract.js";
+import { Button } from "./components/ui/button";
+import { Input } from "./components/ui/input";
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [result, setResult] = useState("");
+
+  async function readImageToText(imagePath: string) {
+    const worker = await createWorker("eng");
+    const ret = await worker.recognize(imagePath);
+
+    console.log(ret.data);
+    setResult(ret.data.text);
+    await worker.terminate();
+  }
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
+    <div className="flex flex-col items-center justify-center h-screen">
+      <Input type="file" />
+      <Button onClick={() => readImageToText("/struk-example.png")}>
+        Convert
+      </Button>
+      <p>OCR Services</p>
+      <p>Please input the picture that you want to convert to text</p>
+      <p className="prose prose-sm prose-sky">
+        {result ? <Markdown>{result}</Markdown> : "Belum ada hasil!"}
       </p>
-    </>
-  )
+    </div>
+  );
 }
 
-export default App
+export default App;
