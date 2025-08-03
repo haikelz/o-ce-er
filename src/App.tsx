@@ -1,7 +1,8 @@
 import { ImageIcon, X } from "lucide-react";
 import { useState } from "react";
 import Dropzone, { useDropzone } from "react-dropzone";
-import ShikiHighlighter from "react-shiki";
+import ShikiHighlighter from "react-shiki/web";
+import { addCopyButton } from "shiki-transformer-copy-button";
 import { createWorker } from "tesseract.js";
 import { Button } from "./components/ui/button";
 import { Input } from "./components/ui/input";
@@ -12,7 +13,7 @@ function App() {
   const [file, setFile] = useState<File | null>(null);
   const [isConverting, setIsConverting] = useState(false);
 
-  const { getRootProps, isDragActive } = useDropzone({
+  const { isDragActive } = useDropzone({
     onDrop: (acceptedFiles) => {
       setFile(acceptedFiles[0]);
     },
@@ -37,14 +38,23 @@ function App() {
     }
   }
 
+  function handleDrop(acceptedFiles: File[]): void {
+    setFile(acceptedFiles[0]);
+  }
+
+  function handleCancelImage(): void {
+    setFile(null);
+    setResult(null);
+  }
+
   return (
     <main className="flex flex-col prose prose-sm prose-sky max-w-full w-full items-center justify-center min-h-screen">
       <section className="flex p-4 flex-col items-center justify-center max-w-7xl">
         <div className="text-center">
           <h1 className="text-3xl font-bold">O-Ce-Er</h1>
           <p className="text-sm text-gray-500">
-            O-Ce-Er is a serverless OCR services that can convert image to text.
-            Brought to you by{" "}
+            O-Ce-Er is a serverless OCR services that can recognize text in an
+            image. Brought to you by{" "}
             <a
               target="_blank"
               rel="noopener noreferrer"
@@ -56,7 +66,7 @@ function App() {
           </p>
         </div>
         <div className="flex flex-col items-center justify-center text-center">
-          <Dropzone onDrop={getRootProps}>
+          <Dropzone onDrop={handleDrop}>
             {({ getRootProps }) => (
               <div
                 className={cn(
@@ -69,7 +79,7 @@ function App() {
                     variant="outline"
                     size="icon"
                     className="absolute top-0 left-0 z-10"
-                    onClick={() => setFile(null)}
+                    onClick={handleCancelImage}
                   >
                     <X className="w-4 h-4" />
                   </Button>
@@ -108,12 +118,14 @@ function App() {
           </Button>
         </div>
         <div className="mt-6 w-full">
-          {result ? (
-            <ShikiHighlighter language="text" theme="github-dark">
+          {file && result ? (
+            <ShikiHighlighter
+              language="markdown"
+              theme="github-dark"
+              transformers={[addCopyButton({ toggle: 2000 })]}
+            >
               {result.trim()}
             </ShikiHighlighter>
-          ) : result !== null ? (
-            <p className="text-center">No result!</p>
           ) : null}
         </div>
       </section>
