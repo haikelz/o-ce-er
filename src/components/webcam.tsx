@@ -3,6 +3,7 @@ import { useAtomValue, useSetAtom } from "jotai";
 import { useCallback, useRef } from "react";
 import type Webcam from "react-webcam";
 import ReactWebcam from "react-webcam";
+import { toast } from "sonner";
 import { Button } from "./ui/button";
 import {
   Dialog,
@@ -31,6 +32,9 @@ export function CustomWebcam() {
     setFile(imgSrc as unknown as File);
     setIsCamera(false);
     setIsFileFromDevice(false);
+    toast.success("Image captured", {
+      description: "The image has been captured",
+    });
   }, [webcamRef, setFile, setIsCamera, setIsFileFromDevice]);
 
   return (
@@ -41,11 +45,11 @@ export function CustomWebcam() {
       <DialogContent>
         {isCamera ? (
           <ReactWebcam
-            videoConstraints={{ width: 1280, height: 720 }}
+            videoConstraints={{ width: 2560, height: 1440 }}
             ref={webcamRef}
             screenshotFormat="image/png"
-            minScreenshotHeight={720}
-            minScreenshotWidth={1280}
+            minScreenshotHeight={1440}
+            minScreenshotWidth={2560}
           />
         ) : (
           <div className="flex flex-col items-center justify-center gap-2">
