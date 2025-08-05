@@ -8,6 +8,7 @@ import {
 import { useAtomValue, useSetAtom } from "jotai";
 import { X } from "lucide-react";
 import Dropzone, { useDropzone } from "react-dropzone";
+import { toast } from "sonner";
 import { createWorker } from "tesseract.js";
 import { ImagePreview } from "./image-preview";
 import { Button } from "./ui/button";
@@ -35,6 +36,11 @@ export function CustomDropzone() {
 
     setIsConverting(false);
     setResult(ret.data.text);
+
+    toast.success("Conversion successful", {
+      description: "The image has been converted to text",
+    });
+
     await worker.terminate();
   }
 
@@ -42,8 +48,12 @@ export function CustomDropzone() {
     setIsFileFromDevice(true);
     const file = e.target.files?.[0];
 
-    if (file) {
+    if (file?.type.startsWith("image/")) {
       setFile(file);
+    } else {
+      toast.error("Please select an image file", {
+        description: "Only image files are supported",
+      });
     }
   }
 
