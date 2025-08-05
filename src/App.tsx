@@ -1,10 +1,17 @@
 import { ImageIcon, X } from "lucide-react";
-import { useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import Dropzone, { useDropzone } from "react-dropzone";
 import ShikiHighlighter from "react-shiki/web";
-import { addCopyButton } from "shiki-transformer-copy-button";
+import Webcam from "react-webcam";
 import { createWorker } from "tesseract.js";
 import { Button } from "./components/ui/button";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogFooter,
+  DialogTrigger,
+} from "./components/ui/dialog";
 import { Input } from "./components/ui/input";
 import { cn } from "./lib/utils";
 
@@ -12,6 +19,10 @@ export default function App() {
   const [result, setResult] = useState<string | null>(null);
   const [file, setFile] = useState<File | null>(null);
   const [isConverting, setIsConverting] = useState(false);
+  const [isCamera, setIsCamera] = useState<boolean>(false);
+  const [isFileFromDevice, setIsFileFromDevice] = useState<boolean>(false);
+
+  const webcamRef = useRef<Webcam>(null);
 
   const { isDragActive } = useDropzone({
     onDrop: (acceptedFiles) => {
@@ -31,6 +42,7 @@ export default function App() {
   }
 
   function handleFileChange(e: React.ChangeEvent<HTMLInputElement>): void {
+    setIsFileFromDevice(true);
     const file = e.target.files?.[0];
 
     if (file) {
@@ -46,6 +58,17 @@ export default function App() {
     setFile(null);
     setResult(null);
   }
+
+  const startCamera = useCallback(() => {
+    setIsCamera(true);
+    setIsFileFromDevice(false);
+  }, [setIsCamera]);
+
+  const captureImage = useCallback(() => {
+    const imgSrc = webcamRef.current?.getScreenshot();
+    setFile(imgSrc as unknown as File);
+    setIsCamera(false);
+  }, [webcamRef, setFile, setIsCamera]);
 
   return (
     <>
@@ -92,7 +115,11 @@ export default function App() {
               />
               {file ? (
                 <img
-                  src={URL.createObjectURL(file)}
+                  src={
+                    isFileFromDevice
+                      ? URL.createObjectURL(file)
+                      : (file as unknown as string)
+                  }
                   alt={file.name || "image"}
                   className="w-full h-full object-cover"
                 />
@@ -118,15 +145,40 @@ export default function App() {
       </div>
       <div className="mt-6 w-full">
         {file && result ? (
-          <ShikiHighlighter
-            language="markdown"
-            theme="github-dark"
-            transformers={[addCopyButton({ toggle: 2000 })]}
-          >
+          <ShikiHighlighter language="markdown" theme="github-dark">
             {result.trim()}
           </ShikiHighlighter>
         ) : null}
       </div>
+      <p>Or use your camera</p>
+      <Dialog>
+        <DialogTrigger asChild>
+          <Button onClick={startCamera}>Start Camera</Button>
+        </DialogTrigger>
+        <DialogContent>
+          {isCamera ? (
+            <Webcam
+              videoConstraints={{ width: 1280, height: 720 }}
+              ref={webcamRef}
+              screenshotFormat="image/png"
+              minScreenshotHeight={720}
+              minScreenshotWidth={1280}
+            />
+          ) : (
+            <div className="flex flex-col items-center justify-center gap-2">
+              <p>No camera found</p>
+            </div>
+          )}
+          <DialogFooter>
+            <DialogClose asChild onClick={() => setIsCamera(false)}>
+              <Button variant="outline">Close</Button>
+            </DialogClose>
+            <DialogClose asChild onClick={captureImage}>
+              <Button>Capture</Button>
+            </DialogClose>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </>
   );
 }
