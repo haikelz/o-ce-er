@@ -1,0 +1,26 @@
+{
+  "name": "@o-ce-er/source",
+  "version": "0.0.0",
+  "license": "MIT",
+  "scripts": {
+    "build:backend": "nx build o-ce-er-backend",
+    "dev:backend": "nx dev o-ce-er-backend",
+    "build:frontend": "nx build o-ce-er-frontend",
+    "dev:frontend": "nx dev o-ce-er-frontend"
+  },
+  "private": true,
+  "devDependencies": {
+    "@nx/esbuild": "21.3.11",
+    "@nx/js": "21.3.11",
+    "@nx/node": "21.3.11",
+    "@nx/workspace": "21.3.11",
+    "@swc-node/register": "~1.9.1",
+    "@swc/core": "~1.5.7",
+    "@swc/helpers": "~0.5.11",
+    "@types/node": "~18.16.9",
+    "esbuild": "^0.19.2",
+    "nx": "21.3.11",
+    "tslib": "^2.3.0",
+    "typescript": "~5.8.2"
+  }
+}
