@@ -1,7 +1,7 @@
 import { createWorker, type ImageLike } from "tesseract.js";
-import { TESSERACT_LANG } from "../configs/tesseract.js";
+import { TESSERACT_LANG } from "../configs/tesseract";
 
-export async function ocrService(image: File | string) {
+export async function ocrService(image: File | string): Promise<string> {
   try {
     let imageBuffer: ArrayBuffer;
 
