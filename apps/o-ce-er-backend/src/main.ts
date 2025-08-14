@@ -1,13 +1,9 @@
-import { serve } from "@hono/node-server";
 import { Hono } from "hono";
-import { pinoLogger } from "hono-pino";
 import { bodyLimit } from "hono/body-limit";
 import { compress } from "hono/compress";
 import { cors } from "hono/cors";
 import { HTTPException } from "hono/http-exception";
 import { prettyJSON } from "hono/pretty-json";
-import { honoConfig } from "./configs/hono";
-import { loggerConfig } from "./configs/logger";
 import { APIErrorResponse, APISuccessResponse } from "./models/response";
 import { ocrService } from "./services/ocr";
 
@@ -16,7 +12,6 @@ const app = new Hono();
 app.use("/*", cors());
 app.use(compress());
 
-app.use(pinoLogger({ pino: loggerConfig }));
 app.use(prettyJSON());
 
 app.post(
@@ -68,15 +63,5 @@ app.post(
 app.get("/", (c) => {
   return c.json(new APISuccessResponse(200, "Success", "OCR API"));
 });
-
-serve(
-  {
-    fetch: app.fetch,
-    ...honoConfig,
-  },
-  (info) => {
-    console.log(`Server is running on post ${info.port}`);
-  }
-);
 
 export default app;
