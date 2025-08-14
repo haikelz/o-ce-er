@@ -9,12 +9,6 @@ A free and open-source Optical Character Recognition (OCR) web application that 
 - Free to use and open source
 - Privacy-focused: all processing happens in your browser
 
-## Technologies
-
-- Remix JS
-- Hono JS
-- Nx Monorepo
-
 ## Getting Started
 
 ### Prerequisites
