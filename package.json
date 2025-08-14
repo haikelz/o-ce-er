@@ -6,7 +6,8 @@
     "build:backend": "nx build o-ce-er-backend",
     "dev:backend": "nx dev o-ce-er-backend",
     "build:frontend": "nx build o-ce-er-frontend",
-    "dev:frontend": "nx dev o-ce-er-frontend"
+    "dev:frontend": "nx dev o-ce-er-frontend",
+    "deploy:backend": "nx run o-ce-er-backend:deploy"
   },
   "private": true,
   "devDependencies": {
