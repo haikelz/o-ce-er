@@ -1,8 +1,12 @@
 import { cn } from "@/lib/utils";
 import { convertImageToText } from "@/services/ocr";
-import { fileAtom, isFileFromDeviceAtom, resultAtom } from "@/store";
-import { useMutation } from "@tanstack/react-query";
-import { useAtomValue, useSetAtom } from "jotai";
+import {
+  fileAtom,
+  isConvertingAtom,
+  isFileFromDeviceAtom,
+  resultAtom,
+} from "@/store";
+import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { X } from "lucide-react";
 import Dropzone, { useDropzone } from "react-dropzone";
 import { toast } from "sonner";
@@ -16,28 +20,17 @@ export function CustomDropzone() {
   const setResult = useSetAtom(resultAtom);
   const setIsFileFromDevice = useSetAtom(isFileFromDeviceAtom);
 
+  const [isConverting, setIsConverting] = useAtom(isConvertingAtom);
+
   const { isDragActive } = useDropzone({
     onDrop: (acceptedFiles) => {
       setFile(acceptedFiles[0]);
     },
   });
 
-  const imageToTextMutation = useMutation({
-    mutationFn: async (image: File) => convertImageToText(image),
-    onSuccess: (data) => {
-      toast.success("Conversion successful", {
-        description: "The image has been converted to text",
-      });
-
-      setResult(data.data.text);
-    },
-  });
-
   function handleFileChange(e: React.ChangeEvent<HTMLInputElement>): void {
     setIsFileFromDevice(true);
     const file = e.target.files?.[0];
-
-    console.log(file);
 
     if (file?.type.startsWith("image/")) {
       setFile(file);
@@ -58,8 +51,17 @@ export function CustomDropzone() {
   }
 
   async function handleConvertImageToText(): Promise<void> {
+    setIsConverting(true);
+
     if (file) {
-      await imageToTextMutation.mutateAsync(file);
+      const result = await convertImageToText(file);
+      setResult(result);
+
+      toast.success("Conversion successful", {
+        description: "The image has been converted to text",
+      });
+
+      setIsConverting(false);
     }
   }
 
@@ -98,9 +100,9 @@ export function CustomDropzone() {
       <Button
         onClick={handleConvertImageToText}
         className="w-full"
-        disabled={imageToTextMutation.isPending || !file}
+        disabled={!file}
       >
-        {imageToTextMutation.isPending ? "Converting..." : "Convert"}
+        {isConverting ? "Converting..." : file ? "Convert" : "Select an image"}
       </Button>
     </div>
   );

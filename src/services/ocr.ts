@@ -1,12 +1,9 @@
-import { api } from "@/configs/axios";
+import { tesseractWorker } from "@/configs/tesseract";
 
 export async function convertImageToText(image: File) {
   try {
-    const formData = new FormData();
-    formData.append("image", image);
-
-    const response = await api.post("/api/ocr", formData);
-    return response.data;
+    const result = await tesseractWorker.recognize(image);
+    return result.data.text;
   } catch (error) {
     console.error(error);
     throw error;
